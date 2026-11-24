@@ -7,7 +7,7 @@ function FormSubmit() {
   const status = useFormStatus();
 
   if (status.pending) {
-    return <p>Create post...</p>
+    return <span>Create post...</span>
   }
 
   return <>
