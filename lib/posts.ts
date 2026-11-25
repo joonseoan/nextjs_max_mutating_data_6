@@ -1,4 +1,5 @@
 import sql from 'better-sqlite3';
+import { cacheLife, cacheTag } from 'next/cache';
 
 /** Row shape of the `users` table. */
 export interface UserProps {
@@ -77,6 +78,26 @@ initDb();
 // ---- Data access -------------------------------------------------------
 
 export async function getPosts(maxNumber?: number): Promise<PostProps[]> {
+  // [IMPORTANT!]
+  // Since nextjs 16, NextJS tweaks the cache policy.
+  // Before nextjs 16, we need wrap the function with `unstable_cache` (it works in v16)
+  // Now, instead of it, we can use `use cache`.
+  // Without `unstable_cache` or `use cache`, the cache does not work in dev and production mode.
+
+  'use cache';
+  cacheLife('hours');
+  cacheTag('posts');
+
+  // v14: `fetch` is cached by default (force-cache).
+  // v15: `fetch` is uncached by default. Use `unstable_cache` to cache
+  //      non-fetch async functions (e.g. DB queries); for `fetch`, pass
+  //      `{ cache: 'force-cache' }` explicitly.
+  // v16: prefer the `use cache` directive for any async function
+  //      (including DB queries and `fetch`); it replaces `unstable_cache`.
+
+  // Must be aware of this. With cache!, it does not rerender the page
+  // even if the data is changed. The page is pre-rendered in the server. That is it!
+
   let limitClause = '';
 
   if (maxNumber) {
@@ -96,6 +117,7 @@ export async function getPosts(maxNumber?: number): Promise<PostProps[]> {
   return (maxNumber ? stmt.all(maxNumber) : stmt.all()) as PostProps[];
 }
 
+// Need to use `use cache` to be cached in the browser.
 export async function storePost(post: NewPostProps): Promise<sql.RunResult> {
   const stmt = db.prepare(`
     INSERT INTO posts (image_url, title, content, user_id)
@@ -111,7 +133,8 @@ export async function updatePostLikeStatus(
   const stmt = db.prepare(`
     SELECT COUNT(*) AS count
     FROM likes
-    WHERE user_id = ? AND post_id = ?`);
+    WHERE user_id = ? AND post_id = ?`
+  );
 
   const { count } = stmt.get(userId, postId) as { count: number };
   const isLiked = count === 0;

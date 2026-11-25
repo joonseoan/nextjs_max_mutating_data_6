@@ -35,7 +35,9 @@
 'use server';
 
 import { redirect } from "next/navigation";
-import { storePost } from "@/lib/posts";
+import { storePost, updatePostLikeStatus } from "@/lib/posts";
+import { uploadImage } from "@/lib/cloudinary";
+import { revalidatePath } from "next/cache";
 
 export async function createPost(prevState: { errors: string[] }, formData: FormData) {
   // WE DO NOT NEED TO DIRECT `use server` any more since we specify `use server` up and above.
@@ -62,12 +64,39 @@ export async function createPost(prevState: { errors: string[] }, formData: Form
     return { errors };
   }
 
-  storePost({
-    imageUrl: '',
+  let imageUrl: string;
+
+  try {
+    imageUrl = await uploadImage(image);
+  } catch (err) {
+    throw new Error(
+      'Image upload failed, post was not created. Please try again.'
+    );
+  }
+
+  await storePost({
+    imageUrl,
     title,
     content,
     userId: 1,
   })
 
+  // Since we use cache for `getPost` function that fetching data in /lib/posts,
+  // we need to test `revalidatePath` works for the cache in production.
+  revalidatePath('/', 'layout');
+
   redirect('/feed');
+}
+
+export async function togglePostLikeStatus(
+  postId: number,
+  // userId?: number
+) {
+  // userId 2 -> hard coded
+  await updatePostLikeStatus(postId, 2);
+  // For all pages
+  // revalidatePath('/', 'layout');
+
+  // For specific page
+  revalidatePath('/feed');
 }

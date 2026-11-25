@@ -1,6 +1,28 @@
+export interface LikeButtonProps {
+  // [IMPORTANT!] - typescript
+  // Without the argument is also fine because in the typescript rule,
+  // fewer arguments function can be covered by more argument function.
+  // formAction: () => Promise<void>
+  formAction: (formData: FormData) => Promise<void>
+}
+
+// Approaching 2 (using form)
 export default function LikeButton() {
+
+  // Approaching 1 (using button)
+// export default function LikeButton({ formAction }: LikeButtonProps) {
+  // [IMPORTANT]!!!
+  // Please make sure that `onClick` should not be used in server component!
   return (
-    <button className="like-button">
+    <button
+      // Approaching 2
+      // no formAction
+      // Approaching 1
+      // formAction={formAction}
+      // Should not be implemented in the server component
+      // onClick={() => { }}
+      className="like-button"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
