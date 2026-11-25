@@ -14,6 +14,7 @@ export default function NewPostPage() {
 
   // Depending on the form's action property setup,
   // the arguments of the action function changes.
+
   // [IMPORTANT]
   // <form action={createPost}>
   // async function createPost(formData: FormData) {
@@ -21,25 +22,22 @@ export default function NewPostPage() {
   // [IMPORTANT]
   // <form action={formAction}></form>
   // async function createPost(prevState: { errors: string[] }, formData: FormData) {
-  //   // [IMPORTANT]
-  //   // converting `form action` to `server action`
-  //   // Must not use `use client` in the up ahead.
 
-  //   // creating `server action`
-  //   // It must implement `async`.
+  // [IMPORTANT]
+  // converting `form action` to `server action`
+  // Must not use `use client` in the up ahead.
+
+  // creating `server action`
+  // It must implement `async`.
   //   'use server';
 
-  //   console.log('prevState: ', prevState)
-
-
-  //   // [IMPORTANT - `form action`]
-  //   // React base without any framework like NextJS
-  //   // It should be implemented in the pure React or `use client` component
-  //   // It does not need to use `async`
+  // [IMPORTANT - `form action`]
+  // React base without any framework like NextJS
+  // It should be implemented in the pure React or `use client` component
+  // It does not need to use `async`
   //   const title = formData.get('title')?.toString() ?? '';
   //   const image = formData.get('image') as File;
   //   const content = formData.get('content')?.toString() ?? '';
-  //   // console.log('title: ', title);
 
   //   const errors = [];
 
@@ -56,13 +54,13 @@ export default function NewPostPage() {
   //   }
 
   //   if (errors.length) {
-  //     // Then what? after the function returns this data?
-  //     // We can't update the UI based on this value in `use server` component.
+      // Then what? after the function returns this data?
+      // We can't update the UI based on this value in `use server` component.
   //     return { errors };
   //   }
 
-  //   // `never` typescript type for this case instead of Promise<{errors: string[]}>
-  //   // `never` can apply for any type!
+  // `never` typescript type for this case instead of Promise<{errors: string[]}>
+  // [IMPORTANT!]`never` can apply for any type!
   //   storePost({
   //     imageUrl: '',
   //     title,
@@ -70,8 +68,8 @@ export default function NewPostPage() {
   //     userId: 1,
   //   })
 
-  //   // We can use this one for action after storing data.
-  //   // redirect from  `nextjs/navigation` (It is used in the `use server`)
+  // We can use this one for action after storing data.
+  // redirect from  `nextjs/navigation` (It is used in the `use server`)
   //   redirect('/feed');
 
   // }
@@ -88,7 +86,6 @@ export default function NewPostPage() {
   //   { errors: [] },
   // );
 
-
   return (
     <>
       <h1>Create a new post</h1>
@@ -97,12 +94,14 @@ export default function NewPostPage() {
         `useActionState` can be implemented only in the client side component.
       */}
       <PostForm action={createPost} />
-    
+
       {/* [IMPORTANT] since it has `useActionState` */}
       {/* <form action={formAction}>
       Without framework like NextJS: `form action`
+
       In this case, createPost's first arg is `formData`
       <form action={createPost}>
+
         <p className="form-control">
           <label htmlFor="title">Title</label>
           <input type="text" id="title" name="title" />
